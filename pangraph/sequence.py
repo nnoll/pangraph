@@ -148,7 +148,6 @@ class Path(object):
                 self.position  = np.cumsum([0] + [n.length(self.name) for n in self.nodes])
                 N += 1
             except ValueError as err:
-                print(f"Error: {err}")
                 return
 
     def replace(self, blk, tag, new_blks, blk_map):

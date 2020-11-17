@@ -38,8 +38,12 @@ class Block(object):
     # properties
 
     @property
+    def sequence(self):
+        return "".join(n for n in self.seq if n != '-')
+
+    @property
     def length(self):
-        return len(self.seq)
+        return len(self.sequence)
 
     @property
     def depth(self):
@@ -222,9 +226,6 @@ class Block(object):
         # NOTE: deal with case where site is not biallelic
         for (locus, snp), tags in alleles.items():
             if len(tags)/len(self.muts) > 0.5:
-                if snp == "-":
-                    import ipdb; ipdb.set_trace()
-
                 new_snp = self.seq[locus]
                 self.seq[locus] = snp
 
@@ -247,9 +248,6 @@ class Block(object):
         return tag
 
     def has(self, iso):
-        # TODO: Removed assumption that isolates will be strictly ordered.
-        # i.e. isolate num 0 can be removed but num 1 can still exist.
-        # Test to see if this works
         for tag in self.muts.keys():
             if tag[0] == iso:
                 return True
@@ -267,15 +265,17 @@ class Block(object):
                 'muts' : {pack(k) : fix(v) for k, v in self.muts.items()}}
 
     def __len__(self):
-        return len(self.seq)
+        return len(self.sequence)
 
     def __getitem__(self, val):
         if isinstance(val, slice):
-            b     = Block()
-            start = val.start or 0
-            stop  = val.stop or len(self.seq)
-            b.seq = self.seq[start:stop]
-            # b.pos = { iso : start+val.start for iso,start in self.pos.items() }
+            b      = Block()
+            offset = np.array([i for i,c in enumerate(self.seq) if c != '-'])
+            start  = val.start or 0
+            stop   = val.stop  or len(self.sequence)
+
+            start, stop = offset[start], offset[stop-1]+1
+            b.seq  = self.seq[start:stop]
             for s, _ in self.muts.items():
                 b.muts[s] = {p-start:c for p,c in self.muts[s].items() if p>=start and p<stop}
             return b

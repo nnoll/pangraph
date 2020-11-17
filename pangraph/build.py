@@ -104,6 +104,6 @@ def main(args):
             g.write_fasta(fd)
 
     # NOTE: uncomment when done debugging
-    T.write_json(sys.stdout, no_seqs=True)
+    # T.write_json(sys.stdout, no_seqs=True)
 
     return 0

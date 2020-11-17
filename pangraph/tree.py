@@ -317,7 +317,6 @@ class Tree(object):
                 rec  = G.extract(n.name)
                 uncompressed_length += len(orig)
                 if orig != rec:
-                    breakpoint("inconsistency")
                     nerror += 1
 
                     with open("test.fa", "w+") as out:
@@ -327,8 +326,9 @@ class Tree(object):
                     for i in range(len(orig)//100):
                         if (orig[i*100:(i+1)*100] != rec[i*100:(i+1)*100]):
                             log("-----------------")
-                            log(f"O: {i} {orig[i*100:(i+1)*100]}")
-                            log(f"G: {i} {rec[i*100:(i+1)*100]}")
+                            log(f"original: {i} {orig[i*100:(i+1)*100]}")
+                            log(f"graph:    {i} {rec[i*100:(i+1)*100]}")
+                            breakpoint("inconsistency")
 
                             diffs = [i for i in range(len(rec)) if rec[i] != orig[i]]
                             pos   = [0]
@@ -370,7 +370,9 @@ class Tree(object):
                     graph.write_fasta(fd)
                 graph, contin = graph.union(itr, itr, f"{tmpdir}/{n.name}_iter_{i}", min_blk_len, mu, beta, extensive, edge_window, edge_extend)
                 if not contin:
-                    return graph
+                    break
+
+            check(self.seqs, graph)
             return graph
 
         # --------------------------------------------

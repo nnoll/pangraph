@@ -67,6 +67,7 @@ def nop(input):
     return input
 
 def random_matrix(input):
+    np.random.seed(0)
     with openany(input) as fh:
         names = [rec.name for rec in parse_fasta(fh)]
 

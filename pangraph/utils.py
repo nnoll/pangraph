@@ -299,6 +299,8 @@ def parse_cigar(aln, qryseq, refseq, cutoff=500):
         elif t == 'M':
             rs = np.array(list(refseq[rr:rr+l]))
             qs = np.array(list(qryseq[rq:rq+l]))
+            if len(rs) != len(qs):
+                import ipdb; ipdb.set_trace()
             diff = np.where(np.array(rs != qs))[0]
             for i in diff:
                 Q[i+blkpos] = qs[i]

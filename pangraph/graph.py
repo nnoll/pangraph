@@ -465,8 +465,8 @@ class Graph(object):
         if hit["orientation"] == Strand.Minus:
             qry = qry.rev_cmpl()
 
-        aln = {"ref_seq"     : as_string(ref.seq),
-               "qry_seq"     : as_string(qry.seq),
+        aln = {"ref_seq"     : ref.sequence,
+               "qry_seq"     : qry.sequence,
                "cigar"       : hit["cigar"],
                "ref_cluster" : ref.muts,
                "qry_cluster" : qry.muts,
@@ -477,6 +477,7 @@ class Graph(object):
                "orientation" : hit["orientation"]}
 
         merged_blks, new_qrys, new_refs, shared_blks, blk_map = Block.from_aln(aln)
+
         for merged_blk in merged_blks:
             self.blks[merged_blk.id] = merged_blk
 
@@ -686,7 +687,7 @@ class Graph(object):
             aln = { J["Isolate_names"].index(iso) :
                     self.blks[b].extract(iso, num, strip_gaps=False) for iso, num in self.blks[b].muts }
             nodes[b] = {"ID"        : b,
-                        "Genomes"   : {"Consensus" : ''.join(self.blks[b].seq),
+                        "Genomes"   : {"Consensus" : self.blks[b].sequence,
                                        "Alignment" : aln },
                         "Out_Edges" : [],
                         "In_Edges"  : []}
@@ -721,5 +722,5 @@ class Graph(object):
                 'distmtx': self.dmtx}
 
     def write_fasta(self, wtr):
-        SeqIO.write(sorted([ as_record(as_string(c.seq), c.id) for c in self.blks.values() ],
+        SeqIO.write(sorted([ as_record(c.sequence, c.id) for c in self.blks.values() ],
             key=lambda x: len(x), reverse=True), wtr, format='fasta')
