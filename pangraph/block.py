@@ -26,7 +26,6 @@ class Block(object):
         super(Block, self).__init__()
         self.id   = randomid() if gen else 0
         self.seq  = None
-        # self.pos  = {}
         self.muts = {}
 
     def __str__(self):
@@ -133,6 +132,7 @@ class Block(object):
             if refs[i] is not None:
                 newblk, isomap[newblk.id][aln['ref_name']] = updatemuts(newblk, R, refmap, aln['ref_cluster'], refs[i])
 
+            newblk.update_consensus()
             newblks.append(newblk)
 
         isomap = dict(isomap)
@@ -212,6 +212,30 @@ class Block(object):
 
         return nblk
 
+    def update_consensus(self):
+        alleles = defaultdict(set)
+        for tag, muts in self.muts.items():
+            for locus, snp in muts.items():
+                alleles[(locus,snp)].add(tag)
+
+        all_tags = set(self.muts.keys())
+        # NOTE: deal with case where site is not biallelic
+        for (locus, snp), tags in alleles.items():
+            if len(tags)/len(self.muts) > 0.5:
+                if snp == "-":
+                    import ipdb; ipdb.set_trace()
+
+                new_snp = self.seq[locus]
+                self.seq[locus] = snp
+
+                # remove mutations in tag set
+                for tag in tags:
+                    self.muts[tag].pop(locus)
+
+                # add mutation in inverse set
+                for tag in all_tags - tags:
+                    self.muts[tag][locus] = new_snp
+
     def push(self, iso, muts):
         tag = iso if isinstance(iso, tuple) else (iso, 0)
 
@@ -219,6 +243,7 @@ class Block(object):
             tag = (tag[0], tag[1]+1)
 
         self.muts[tag] = muts
+
         return tag
 
     def has(self, iso):

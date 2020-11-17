@@ -52,8 +52,8 @@ class Path(object):
         self.position = np.cumsum([0] + [n.length(name) for n in self.nodes])
         self.circular = circular
 
-        if offset > 0 and not circular:
-            raise ValueError("sequence path cannot have non-zero offset if it corresponds to linear genome")
+        # if offset > 0 and not circular:
+        #     raise ValueError("sequence path cannot have non-zero offset if it corresponds to linear genome")
 
     def __str__(self):
         return f"{self.name}: {[str(n) for n in self.nodes]}"
@@ -63,7 +63,9 @@ class Path(object):
 
     @classmethod
     def from_dict(cls, d, blks):
-        return Path(d['name'], [Node.from_dict(n, blks) for n in d['nodes']], d['offset'], d['circular'] if 'circular' in d else False)
+        if 'circular' in d:
+            return Path(d['name'], [Node.from_dict(n, blks) for n in d['nodes']], d['offset'], d['circular'])
+        return Path(d['name'], [Node.from_dict(n, blks) for n in d['nodes']], d['offset'], False)
 
     def to_dict(self):
         return {'name': self.name, 'offset': self.offset, 'nodes': [n.to_dict() for n in self.nodes], 'circular': self.circular}
@@ -81,8 +83,8 @@ class Path(object):
                 seq += rev_cmpl(s)
 
         if self.offset != 0:
-            if not self.circular:
-                raise ValueError("invalid sequence path: non-zero offset for linear genome")
+            # if not self.circular:
+            #     raise ValueError("invalid sequence path: non-zero offset for linear genome")
             seq = seq[self.offset:] + seq[:self.offset]
 
         return seq
@@ -110,7 +112,6 @@ class Path(object):
         N = 0
         while True:
             ids = [n.blk.id for n in self.nodes]
-            print(f"--> Iteration {N}: ids={ids}, New block={new}")
             try:
                 i, j = ids.index(start[0]), ids.index(stop[0])
 
@@ -134,8 +135,8 @@ class Path(object):
                 else:
                     # print(f"----> case 2: {self.nodes[beg:] + self.nodes[:end+1]} ({beg}, {end})")
                     # s0 = "".join(n.blk.extract(self.name, n.num) for n in self.nodes[beg:] + self.nodes[:end+1])
-                    if not self.circular:
-                        raise ValueError("attempted to rotate non-circular sequence")
+                    # if not self.circular:
+                    #     raise ValueError("attempted to rotate non-circular sequence")
                     self.offset += sum(n.blk.len_of(self.name, N) for n in self.nodes[beg:])
                     val = dict(ChainMap(*[new.muts[n.blk][(self.name,n.num)] for n in self.nodes[beg:] + self.nodes[:end+1]]))
                     new.muts.update({key:val})

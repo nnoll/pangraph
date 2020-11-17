@@ -364,7 +364,7 @@ class Tree(object):
 
             for i in range(MAXSELFMAPS):
                 log(f"----> merge round {i}")
-                check(self.seqs, graph)
+                # check(self.seqs, graph)
                 itr = f"{tmpdir}/{n.name}_iter_{i}"
                 with open(f"{itr}.fa", 'w') as fd:
                     graph.write_fasta(fd)
@@ -390,7 +390,6 @@ class Tree(object):
         for n in self.postorder():
             if n.is_leaf():
                 continue
-            print(f"+++LEVEL={n.level}+++")
             n.fapath = f"{tmpdir}/{n.name}"
             log(f"fusing {n.child[0].name} with {n.child[1].name} @ {n.name}")
             n.graph = merge(*n.child)
@@ -399,11 +398,10 @@ class Tree(object):
                 if log_stats:
                     stats[c.name] = {
                         'length' : [b.length for b in c.graph.blks.values()],
-                        'depth'  : [b.depth for b in c.graph.blks.values()],
+                        'depth'  : [b.depth  for b in c.graph.blks.values()],
                     }
                 c.graph = None
 
-            check(self.seqs, n.graph)
             with open(f"{n.fapath}.fa", 'w') as fd:
                 n.graph.write_fasta(fd)
 

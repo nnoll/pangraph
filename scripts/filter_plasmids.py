@@ -35,18 +35,19 @@ def main(dirs, plasmids=True):
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
 
+        is_plasmid = lambda r: len(r.seq) < 1e6 and "plasmid" in r.meta
+
         for path in glob(f"{in_dir}/*.f?a*"):
             with open(path, 'rt') as fd, open(f"{out_dir}/{os.path.basename(path).replace('.gz', '')}", 'w') as wtr:
                 for i, rec in enumerate(parse_fasta(fd)):
-                    if i == 0:
+                    if is_plasmid(rec):
+                        if plasmids:
+                            wtr.write(str(rec))
+                            wtr.write('\n')
+                    else:
                         if not plasmids:
                             wtr.write(str(rec))
                             wtr.write('\n')
-                            break
-                        continue
-
-                    wtr.write(str(rec))
-                    wtr.write('\n')
 
 parser = argparse.ArgumentParser(description='seperate plasmids from chromosomes')
 parser.add_argument('directories', metavar='dirs', nargs='+')

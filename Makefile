@@ -62,7 +62,13 @@ staph:
 	pangraph cluster -d data/staph data/staph/assemblies/*.fna.gz
 	@echo "build      staph"; \
 	pangraph build -d data/staph -m 500 -b 0 -e 2500 -w 1000 --circular data/staph/guide.json
-# 2>staph-e2500-w1000.err 1>staph-e2500-w1000.log
+
+phage:
+	@echo "cluster    phage"; \
+	pangraph cluster -d data/clusterA-random2 --backend random data/clusterA-random2/assemblies/*.fna.gz
+	@echo "build      phage"; \
+	pangraph build -d data/clusterA-random2 -m 500 -b 0 -e 2500 -w 1000 data/clusterA-random2/guide.json 1> data/clusterA-random2/graph.json
+
 # figures
 
 # figs/figure1.png: $(STAT)
